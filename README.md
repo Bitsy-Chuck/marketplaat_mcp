@@ -53,7 +53,7 @@ Or add it to any MCP client config, using an absolute path to your clone:
 Check it works:
 
 ```bash
-node smoke-mcp.mjs
+npm run test:mcp
 ```
 
 ## Tools
@@ -141,11 +141,23 @@ If it starts to, the tools will surface the HTTP status in the error message.
 ## Testing
 
 ```bash
-node verify.mjs     # 42 checks against the live site
-node smoke-mcp.mjs  # 14 checks over the real MCP stdio protocol
+npm test             # both suites
+npm run test:client  # 42 checks against the live site
+npm run test:mcp     # 14 checks over the real MCP stdio protocol
 ```
 
 Both are read-only and safe to run. They hit the live site, so they need network access and take about a minute.
+
+CI mirrors that split. Type check and build run on every push and never touch the site.
+The live suites run weekly, as an early warning that the site changed.
+
+Call a tool by hand without wiring up a client:
+
+```bash
+npm run ask -- search '{"query":"iphone 15 pro","maxPriceEur":500}'
+npm run ask -- listing a1517154667
+npm run ask -- seller 57429132
+```
 
 ## Re-recording
 
@@ -158,13 +170,13 @@ only when you need to re-record:
 ```bash
 npm install -D playwright
 npx playwright install chromium
-node capture.mjs    # drives a headless Chromium over the public search flow
+npm run capture     # drives a headless Chromium over the public search flow
 ```
 
 Already have Playwright elsewhere? Point at it instead of installing a second copy:
 
 ```bash
-MARKTPLAATS_PLAYWRIGHT=/path/to/node_modules/playwright node capture.mjs
+MARKTPLAATS_PLAYWRIGHT=/path/to/node_modules/playwright npm run capture
 ```
 
 The HAR lands in `captures/` and screenshots in `shots/`. **Both are gitignored, and must stay
@@ -175,6 +187,22 @@ account credentials, but they still identify your browser session. Never commit 
 
 Then follow the `har-to-mcp` skill from Phase 1.
 
+## Project layout
+
+```
+src/client.ts     typed HTTP client for marktplaats.nl, knows nothing about MCP
+src/server.ts     the MCP surface, contains no parsing
+scripts/verify.mjs      client checks against the live site
+scripts/smoke-mcp.mjs   checks over the real MCP stdio protocol
+scripts/capture.mjs     re-records the HAR, needs Playwright
+scripts/ask.mjs         call a tool from the shell
+```
+
+Keeping the two `src` files apart is deliberate. Parsing changes stay in `client.ts`, and the
+tool surface in `server.ts` stays stable.
+
+`captures/`, `shots/` and `work/` are gitignored build-time artefacts and never ship.
+
 ## Scope
 
 Read-only, by design.
@@ -183,3 +211,17 @@ Every tool is a GET and is annotated `readOnlyHint: true`.
 
 Automated access may sit outside the site's terms of service.
 You are responsible for how you use it. Keep request rates low and sane.
+
+This is an unofficial client. It is not affiliated with, endorsed by, or supported by
+Marktplaats or its owners.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). The short version: keep it read-only, keep request
+rates low, and never commit a capture.
+
+Security issues: see [SECURITY.md](SECURITY.md).
+
+## License
+
+[ISC](LICENSE).

@@ -29,7 +29,7 @@ if (cmd === "search") args = JSON.parse(arg || "{}");
 else if (cmd === "listing") args = { listing: arg };
 else args = { sellerId: arg };
 
-const child = spawn("node", [new URL("dist/server.js", import.meta.url).pathname], {
+const child = spawn("node", [new URL("../dist/server.js", import.meta.url).pathname], {
   stdio: ["pipe", "pipe", "inherit"],
 });
 

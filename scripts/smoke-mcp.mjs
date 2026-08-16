@@ -8,7 +8,7 @@
 import { spawn } from "node:child_process";
 import { LATEST_PROTOCOL_VERSION } from "@modelcontextprotocol/server";
 
-const child = spawn("node", ["dist/server.js"], { stdio: ["pipe", "pipe", "pipe"] });
+const child = spawn("node", [new URL("../dist/server.js", import.meta.url).pathname], { stdio: ["pipe", "pipe", "pipe"] });
 child.stderr.on("data", (b) => process.stderr.write(`[server] ${b}`));
 
 let buf = "";

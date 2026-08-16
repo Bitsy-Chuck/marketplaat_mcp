@@ -5,7 +5,7 @@
  * Read-only. Run: node verify.mjs
  */
 
-import { getListing, getSeller, searchListings } from "./dist/client.js";
+import { getListing, getSeller, searchListings } from "../dist/client.js";
 
 let pass = 0;
 let fail = 0;

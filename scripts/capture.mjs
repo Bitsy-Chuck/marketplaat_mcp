@@ -72,8 +72,8 @@ async function loadChromium() {
 
 const chromium = await loadChromium();
 
-const OUT = resolve(HERE, "captures");
-const SHOTS = resolve(HERE, "shots");
+const OUT = resolve(HERE, "..", "captures");
+const SHOTS = resolve(HERE, "..", "shots");
 mkdirSync(OUT, { recursive: true });
 mkdirSync(SHOTS, { recursive: true });
 
