@@ -1,5 +1,10 @@
 # marktplaats-mcp
 
+[![CI](https://github.com/Bitsy-Chuck/marktplaats-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Bitsy-Chuck/marktplaats-mcp/actions/workflows/ci.yml)
+[![Live site check](https://github.com/Bitsy-Chuck/marktplaats-mcp/actions/workflows/live-check.yml/badge.svg)](https://github.com/Bitsy-Chuck/marktplaats-mcp/actions/workflows/live-check.yml)
+[![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](package.json)
+
 A read-only MCP server for [marktplaats.nl](https://www.marktplaats.nl), the Dutch classifieds site.
 It lets an agent search listings and read price, specs, condition, delivery method, location and seller.
 
@@ -16,9 +21,30 @@ Consumer sites change. Re-record when tools start failing. See "Re-recording" be
 ## Credentials
 
 **None.** Every tool is a public, logged-out GET request.
-There are no environment variables, no tokens, no cookies, and nothing to refresh.
+There are no tokens, no cookies, no accounts, and nothing to refresh.
 
 This is the whole reason the server is simple. Read-only public search needs no session.
+
+No environment variable is required. Two optional ones tune the rate limiter, below.
+
+## Rate limiting
+
+This reads an internal API on a live consumer site, so the client is built to behave politely
+rather than quickly.
+
+- **Requests are serialised** with a minimum gap between them. If an agent fires eight searches
+  at once they queue into one orderly stream instead of fanning out.
+- **Throttling and transient 5xx are retried** with exponential backoff and jitter, honouring
+  `Retry-After` when the site sends it.
+
+| Variable | Default | Notes |
+| --- | --- | --- |
+| `MARKTPLAATS_MIN_INTERVAL_MS` | `1000` | Minimum gap between request starts. Clamped to 0-60000. |
+| `MARKTPLAATS_MAX_RETRIES` | `3` | Retries after the first attempt. Clamped to 0-10. |
+
+The defaults are deliberately conservative. If bulk work feels slow, do less of it rather than
+turning the gap down. If the site starts returning HTTP 429, raise
+`MARKTPLAATS_MIN_INTERVAL_MS` instead of retrying harder.
 
 ## Install
 

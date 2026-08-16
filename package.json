@@ -20,8 +20,16 @@
     "classifieds",
     "netherlands"
   ],
-  "author": "",
+  "author": "Bitsy-Chuck",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bitsy-Chuck/marktplaats-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Bitsy-Chuck/marktplaats-mcp/issues"
+  },
+  "homepage": "https://github.com/Bitsy-Chuck/marktplaats-mcp#readme",
   "type": "module",
   "engines": {
     "node": ">=20"

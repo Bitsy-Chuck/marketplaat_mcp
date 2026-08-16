@@ -7,6 +7,8 @@
  * Discovered by recording the site's traffic on 2026-08-16. See README.md.
  */
 
+import process from "node:process";
+
 const ORIGIN = "https://www.marktplaats.nl";
 const SEARCH_API = `${ORIGIN}/lrp/api/search`;
 const SELLER_API = `${ORIGIN}/v/api/seller-profile`;
@@ -180,30 +182,123 @@ export class MarktplaatsError extends Error {
 }
 
 // ---------------------------------------------------------------------------
+// Rate limiting
+//
+// This reads an internal API on a live consumer site, so it has to behave like
+// a polite client rather than a crawler. Two mechanisms:
+//
+//   1. Requests are serialised with a minimum gap between them. Concurrent
+//      callers queue instead of fanning out, so an agent firing eight searches
+//      at once still produces one orderly stream.
+//   2. Throttling and transient server errors are retried with exponential
+//      backoff, honouring Retry-After when the site sends it.
+//
+// Both are tunable by environment variable, but the defaults are deliberately
+// conservative. If bulk work feels slow, do less of it rather than turning the
+// gap down.
+// ---------------------------------------------------------------------------
+
+/** Read a bounded integer from the environment, falling back when unusable. */
+function envInt(name: string, fallback: number, min: number, max: number): number {
+  const raw = process.env[name];
+  if (raw === undefined || raw === "") return fallback;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(max, Math.max(min, Math.trunc(parsed)));
+}
+
+/** Minimum gap between the starts of two requests. */
+const MIN_INTERVAL_MS = envInt("MARKTPLAATS_MIN_INTERVAL_MS", 1000, 0, 60_000);
+/** Retries after the first attempt, for throttling and transient errors. */
+const MAX_RETRIES = envInt("MARKTPLAATS_MAX_RETRIES", 3, 0, 10);
+/** Worth retrying: throttling, and the transient 5xx family. */
+const RETRY_STATUS = new Set([429, 500, 502, 503, 504]);
+const MAX_BACKOFF_MS = 30_000;
+
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** Tail of the request queue. Each request waits for the previous one. */
+let queue: Promise<unknown> = Promise.resolve();
+let lastStartedAt = 0;
+
+/** Run fn once the queue drains and the minimum interval has elapsed. */
+function schedule<T>(fn: () => Promise<T>): Promise<T> {
+  const run = queue.then(async () => {
+    const wait = lastStartedAt + MIN_INTERVAL_MS - Date.now();
+    if (wait > 0) await sleep(wait);
+    lastStartedAt = Date.now();
+    return fn();
+  });
+  // Swallow the result on the queue chain so one failure cannot break the
+  // queue for every later caller. The real outcome still reaches `run`.
+  queue = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run;
+}
+
+/** Delay before retry `attempt` (0-based), honouring Retry-After if present. */
+function backoffMs(attempt: number, retryAfter: string | null): number {
+  if (retryAfter) {
+    const seconds = Number(retryAfter);
+    if (Number.isFinite(seconds) && seconds >= 0) {
+      return Math.min(seconds * 1000, MAX_BACKOFF_MS);
+    }
+    const at = Date.parse(retryAfter);
+    if (!Number.isNaN(at)) {
+      return Math.min(Math.max(at - Date.now(), 0), MAX_BACKOFF_MS);
+    }
+  }
+  // Exponential, with jitter so parallel clients do not resynchronise.
+  const base = Math.max(MIN_INTERVAL_MS, 500) * 2 ** attempt;
+  return Math.min(base + Math.random() * 250, MAX_BACKOFF_MS);
+}
+
+// ---------------------------------------------------------------------------
 // Fetch helpers
 // ---------------------------------------------------------------------------
 
 async function get(url: string, accept: "json" | "html"): Promise<unknown> {
-  let res: Response;
-  try {
-    res = await fetch(url, { headers: HEADERS, redirect: "follow" });
-  } catch (cause) {
-    throw new MarktplaatsError(
-      `Network request to marktplaats.nl failed: ${(cause as Error).message}`,
-      undefined,
-      url,
-    );
-  }
-  if (!res.ok) {
+  let lastNetworkError: MarktplaatsError | null = null;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    let res: Response;
+    try {
+      res = await schedule(() => fetch(url, { headers: HEADERS, redirect: "follow" }));
+    } catch (cause) {
+      lastNetworkError = new MarktplaatsError(
+        `Network request to marktplaats.nl failed: ${(cause as Error).message}`,
+        undefined,
+        url,
+      );
+      if (attempt < MAX_RETRIES) {
+        await sleep(backoffMs(attempt, null));
+        continue;
+      }
+      throw lastNetworkError;
+    }
+
+    if (res.ok) return accept === "json" ? res.json() : res.text();
+
+    if (RETRY_STATUS.has(res.status) && attempt < MAX_RETRIES) {
+      await sleep(backoffMs(attempt, res.headers.get("retry-after")));
+      continue;
+    }
+
     throw new MarktplaatsError(
       res.status === 404
         ? "Listing not found. It was probably removed or sold."
-        : `marktplaats.nl returned HTTP ${res.status}. If this persists the site changed; re-record the capture (see README).`,
+        : res.status === 429
+          ? `marktplaats.nl throttled this client (HTTP 429) and it did not clear after ${MAX_RETRIES} retries. Send fewer requests, or raise MARKTPLAATS_MIN_INTERVAL_MS.`
+          : `marktplaats.nl returned HTTP ${res.status}. If this persists the site changed; re-record the capture (see README).`,
       res.status,
       url,
     );
   }
-  return accept === "json" ? res.json() : res.text();
+
+  /* istanbul ignore next: the loop always returns or throws before here. */
+  throw lastNetworkError ?? new MarktplaatsError("Request to marktplaats.nl failed", undefined, url);
 }
 
 // ---------------------------------------------------------------------------
