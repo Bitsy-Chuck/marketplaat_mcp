@@ -1,0 +1,19 @@
+# Build output
+dist/
+node_modules/
+
+# Secrets
+.env
+.env.*
+
+# Capture artefacts. NEVER commit these.
+# A HAR records real request headers, so it holds your own browser's consent,
+# WAF and analytics cookies. Screenshots may show identifying UI.
+captures/
+shots/
+work/
+*.har
+
+# OS and editor noise
+.DS_Store
+*.log
