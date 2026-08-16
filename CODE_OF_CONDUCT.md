@@ -52,7 +52,7 @@ as an appointed representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the
 maintainers by opening a
-[private security advisory](https://github.com/Bitsy-Chuck/marktplaats-mcp/security/advisories/new),
+[private security advisory](https://github.com/Bitsy-Chuck/marketplaat_mcp/security/advisories/new),
 which is private to the reporter and the maintainers. All complaints will be reviewed and
 investigated promptly and fairly.
 

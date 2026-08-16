@@ -35,5 +35,5 @@ Initial release. Capture recorded 2026-08-16.
 - CI split by network use. Build and type check run per push; the live suites
   run weekly as an early warning that the site changed.
 
-[Unreleased]: https://github.com/Bitsy-Chuck/marktplaats-mcp/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/Bitsy-Chuck/marktplaats-mcp/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Bitsy-Chuck/marketplaat_mcp/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Bitsy-Chuck/marketplaat_mcp/releases/tag/v0.1.0

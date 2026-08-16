@@ -24,12 +24,12 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Bitsy-Chuck/marktplaats-mcp.git"
+    "url": "git+https://github.com/Bitsy-Chuck/marketplaat_mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/Bitsy-Chuck/marktplaats-mcp/issues"
+    "url": "https://github.com/Bitsy-Chuck/marketplaat_mcp/issues"
   },
-  "homepage": "https://github.com/Bitsy-Chuck/marktplaats-mcp#readme",
+  "homepage": "https://github.com/Bitsy-Chuck/marketplaat_mcp#readme",
   "type": "module",
   "engines": {
     "node": ">=20"

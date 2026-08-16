@@ -1,7 +1,7 @@
 # marktplaats-mcp
 
-[![CI](https://github.com/Bitsy-Chuck/marktplaats-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Bitsy-Chuck/marktplaats-mcp/actions/workflows/ci.yml)
-[![Live site check](https://github.com/Bitsy-Chuck/marktplaats-mcp/actions/workflows/live-check.yml/badge.svg)](https://github.com/Bitsy-Chuck/marktplaats-mcp/actions/workflows/live-check.yml)
+[![CI](https://github.com/Bitsy-Chuck/marketplaat_mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Bitsy-Chuck/marketplaat_mcp/actions/workflows/ci.yml)
+[![Live site check](https://github.com/Bitsy-Chuck/marketplaat_mcp/actions/workflows/live-check.yml/badge.svg)](https://github.com/Bitsy-Chuck/marketplaat_mcp/actions/workflows/live-check.yml)
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](package.json)
 
