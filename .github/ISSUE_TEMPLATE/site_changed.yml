@@ -1,0 +1,95 @@
+name: A tool stopped working
+description: Search, listing or seller lookup started failing or returning wrong data.
+title: "[site] "
+labels: ["site-changed"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This server reads an internal API on a live consumer site, so the usual cause is that
+        marktplaats.nl changed, not that this code regressed.
+
+        Please run the live suites first. Their output tells us straight away whether the
+        breakage is in the client layer, the MCP layer, or both.
+
+        ```bash
+        npm run build
+        npm test
+        ```
+
+  - type: dropdown
+    id: tool
+    attributes:
+      label: Which tool?
+      multiple: true
+      options:
+        - search_listings
+        - get_listing
+        - get_seller
+        - All of them
+    validations:
+      required: true
+
+  - type: dropdown
+    id: symptom
+    attributes:
+      label: What happens?
+      options:
+        - An error is returned
+        - It succeeds but a field is missing
+        - It succeeds but a field holds the wrong value
+        - It hangs or times out
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: The exact call. `npm run ask -- search '{"query":"..."}'` is ideal.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What you got
+      description: Full error text, or the wrong output. Redact nothing; there are no credentials involved.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+
+  - type: textarea
+    id: suite
+    attributes:
+      label: Output of `npm test`
+      description: The summary lines are enough, for example "42 passed, 0 failed".
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: node
+    attributes:
+      label: Node version
+      placeholder: "output of node --version"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you file
+      options:
+        - label: I ran `npm run build` against the current `main`.
+          required: true
+        - label: I checked that the listing or seller still exists on the site.
+          required: true

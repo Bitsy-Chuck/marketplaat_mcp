@@ -9,6 +9,11 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Least privilege. This workflow only reads the tree; it never writes to the
+# repo. Forks opening pull requests get a read-only token.
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build on Node ${{ matrix.node }}

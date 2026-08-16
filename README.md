@@ -243,10 +243,16 @@ Marktplaats or its owners.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). The short version: keep it read-only, keep request
-rates low, and never commit a capture.
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests and the
+review rules. The short version: keep it read-only, keep request rates low, and never commit
+a capture.
 
-Security issues: see [SECURITY.md](SECURITY.md).
+- Code of conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- Security issues: [SECURITY.md](SECURITY.md), reported privately, never as a public issue
+- Release history: [CHANGELOG.md](CHANGELOG.md)
+
+If a tool stopped working, that is usually the site changing rather than a code bug. Open a
+**A tool stopped working** issue; the template collects what is needed to tell the two apart.
 
 ## License
 

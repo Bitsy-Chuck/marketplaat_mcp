@@ -1,0 +1,46 @@
+name: Feature request
+description: A new field, filter or tool.
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Two things shape what can be accepted here.
+
+        **This project is read-only.** Nothing may log in, post an advert, place a bid, message
+        a seller, add to a cart, or buy. Requests that need a session will be declined.
+
+        **It must stay polite.** Anything whose normal use means a burst of traffic to
+        marktplaats.nl, such as polling, prefetching or parallel fan-out, will be declined.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do
+      description: The task, not the implementation. It often turns out an existing field covers it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like
+    validations:
+      required: true
+
+  - type: input
+    id: evidence
+    attributes:
+      label: Where does the site expose this?
+      description: A listing URL or a field name that shows the data exists. Leave blank if unsure.
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: This needs no login and no write action of any kind.
+          required: true
+        - label: This does not require polling or repeated background requests.
+          required: true

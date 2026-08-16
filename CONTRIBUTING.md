@@ -2,6 +2,8 @@
 
 Thanks for taking a look. This is a small, deliberately narrow project.
 
+Everyone taking part is expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## Ground rules
 
 **Read-only, always.**
